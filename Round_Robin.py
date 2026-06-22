@@ -11,13 +11,12 @@ def Round_Robin(processes, quantum):
 
     while True:
         done = True
+        all_waiting = True # Used to check if all processes are waiting and none are executing; if true, it means that the CPU is idle and we can skip the time increment
         for i in range(n):
             if remaining_time[i] > 0:
                 done = False
+                all_waiting = False # If a process is found to be executing, set all_waiting to False
                 if processes[i]['arrival_time'] > time: # If the arrival time of the process is greater than the current time, it means that the process has not arrived yet and we can skip it
-                   time_s = processes[i]['arrival_time'] - time # Calculates the time to wait for the process to arrive
-                   # Advances the current time to the arrival time of the process
-                   sleep(time_s) # Adds a delay of 0.5 seconds to simulate the scheduling process and make it more visually appealing
                    continue
                 if remaining_time[i] > quantum:
                     time += quantum
@@ -29,6 +28,14 @@ def Round_Robin(processes, quantum):
                     gantt.append((processes[i]['process_id'], time))
         if done:
             break
+        
+        if all_waiting:
+            next_arrival = min(
+                processes[i]['arrival_time']
+                for i in range(n) if remaining_time[i] > 0
+            )
+            time = next_arrival
+
     for p in processes:
         p['turnaround_time'] = p['completion_time'] - p['arrival_time']  # TAT = Completion - Arrival
         p['waiting_time'] = p['turnaround_time'] - p['burst_time']       # WT  = TAT - Burst
