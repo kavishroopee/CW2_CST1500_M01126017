@@ -1,4 +1,4 @@
-from time import sleep # Used for time delays to simulate the scheduling process
+import tkinter as tk # Used for GUI creation
 import pandas as pd # Used for table creation and better visualisation
 
 def Round_Robin(processes, quantum):
@@ -15,12 +15,16 @@ def Round_Robin(processes, quantum):
         for i in range(n):
             if remaining_time[i] > 0:
                 done = False
-                all_waiting = False # If a process is found to be executing, set all_waiting to False
+            
                 if processes[i]['arrival_time'] > time: # If the arrival time of the process is greater than the current time, it means that the process has not arrived yet and we can skip it
-                   continue
+                    continue # Skip to the next process in the loop
+                
+                all_waiting = False
+                
                 if remaining_time[i] > quantum:
                     time += quantum
                     remaining_time[i] -= quantum
+                    gantt.append((processes[i]['process_id'], time))
                 else:
                     time += remaining_time[i]
                     processes[i]['completion_time'] = time
@@ -30,11 +34,16 @@ def Round_Robin(processes, quantum):
             break
         
         if all_waiting:
-            next_arrival = min(
+            future_arrivals = [
                 processes[i]['arrival_time']
-                for i in range(n) if remaining_time[i] > 0
-            )
-            time = next_arrival
+                for i in range(n)
+                if remaining_time[i] > 0
+                and processes[i]['arrival_time'] > time
+            ]
+
+            if future_arrivals:
+                time = min(future_arrivals)
+            continue  
 
     for p in processes:
         p['turnaround_time'] = p['completion_time'] - p['arrival_time']  # TAT = Completion - Arrival
@@ -90,3 +99,13 @@ print(f"Average Waiting Time    : {avg_wt:.2f}") # Prints to 2d.p due to the (.2
 
 # Prints the process information after scheduling
 print(f"\nGantt Chart: {gantt}")
+
+
+#def main():
+ #  root.geometry("800x600")
+  #  root.title("Round Robin Scheduling")
+
+ #   root.mainloop()
+
+
+
